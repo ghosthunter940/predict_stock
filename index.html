@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Prediction - Newton Gregory | GhostHunter</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Stock Predictor</span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#calculator" class="nav-link">Calculator</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">Stock Price Prediction</h1>
+                <p class="hero-subtitle">Menggunakan Metode Newton-Gregory Forward Interpolation</p>
+                <p class="creator">Created by <span class="highlight">GhostHunter</span></p>
+                <button class="cta-button" onclick="scrollToSection('calculator')">
+                    <i class="fas fa-calculator"></i>
+                    Mulai Prediksi
+                </button>
+            </div>
+            <div class="hero-visual">
+                <div class="floating-chart">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="floating-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">95%</span>
+                        <span class="stat-label">Akurasi</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">Fast</span>
+                        <span class="stat-label">Prediksi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+    </section>
+
+    <!-- Calculator Section -->
+    <section id="calculator" class="calculator-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Kalkulator Prediksi Saham</h2>
+                <p>Masukkan data historis untuk mendapatkan prediksi harga saham</p>
+            </div>
+
+            <!-- Mode Selection -->
+            <div class="mode-selection">
+                <div class="mode-toggle">
+                    <button class="mode-btn active" id="yearMode" onclick="setMode('year')">
+                        <i class="fas fa-calendar-alt"></i>
+                        Mode Tahun
+                    </button>
+                    <button class="mode-btn" id="dateMode" onclick="setMode('date')">
+                        <i class="fas fa-calendar-day"></i>
+                        Mode Tanggal
+                    </button>
+                </div>
+            </div>
+
+            <!-- Input Form -->
+            <div class="input-section">
+                <div class="input-header">
+                    <h3>Input Data Historis</h3>
+                    <div class="data-count">
+                        <label for="dataCount">Jumlah Data (3-10):</label>
+                        <select id="dataCount" onchange="generateInputFields()">
+                            <option value="3">3 Data</option>
+                            <option value="4" selected>4 Data</option>
+                            <option value="5">5 Data</option>
+                            <option value="6">6 Data</option>
+                            <option value="7">7 Data</option>
+                            <option value="8">8 Data</option>
+                            <option value="9">9 Data</option>
+                            <option value="10">10 Data</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-form">
+                    <div id="dataInputs" class="data-inputs">
+                        <!-- Dynamic input fields will be generated here -->
+                    </div>
+                    
+                    <div class="prediction-input">
+                        <h4>Data yang Ingin Diprediksi</h4>
+                        <div class="predict-field">
+                            <label id="predictLabel">Tahun:</label>
+                            <input type="number" id="predictValue" placeholder="Masukkan tahun yang ingin diprediksi">
+                        </div>
+                    </div>
+
+                    <button class="calculate-btn" onclick="calculatePrediction()">
+                        <i class="fas fa-calculator"></i>
+                        Hitung Prediksi
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <!-- Input Table -->
+                <div class="result-card">
+                    <h3><i class="fas fa-table"></i> Tabel Data Input</h3>
+                    <div class="table-container">
+                        <table id="inputTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th id="timeHeader">Tahun</th>
+                                    <th>Harga Saham</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inputTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Newton-Gregory Table -->
+                <div class="result-card">
+                    <h3><i class="fas fa-calculator"></i> Tabel Newton-Gregory</h3>
+                    <div class="table-container">
+                        <table id="newtonTable" class="data-table">
+                            <thead id="newtonTableHead">
+                            </thead>
+                            <tbody id="newtonTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Prediction Result -->
+                <div class="result-card prediction-result">
+                    <h3><i class="fas fa-crystal-ball"></i> Hasil Prediksi</h3>
+                    <div class="prediction-display">
+                        <div class="prediction-value">
+                            <span class="currency">Rp</span>
+                            <span id="predictionValue">-</span>
+                        </div>
+                        <div class="prediction-details">
+                            <div class="detail-item">
+                                <span class="label">Nilai u:</span>
+                                <span id="uValue">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Tren:</span>
+                                <span id="trendValue" class="trend-badge">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Tentang Newton-Gregory Forward</h2>
+                    <p>Metode Newton-Gregory Forward adalah teknik interpolasi numerik yang digunakan untuk memprediksi nilai masa depan berdasarkan data historis. Jadi web ini tidak hanya memprediksi saham, juga bisa memprediksi hasil panen, kelahiran, dll.</p>
+                    <p>Web ini tidak hanya menghitung yang pertahun tapi juga perhari. Untuk menggunakan metode ini kalian harus memasukkan data dengan beda/selisih yang sama, sesuai syarat menggunakan metode newton gregory. </p>
+                    <div class="features">
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Prediksi Akurat</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Easy to Use</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Real-time Calculation</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-visual">
+                    <div class="formula-card">
+                        <h4>Formula Newton-Gregory</h4>
+                        <p>f(x₀ + uh) = f(x₀) + uΔf(x₀) + u(u-1)/2!Δ²f(x₀) + ...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Kontak</h2>
+                <p>Hubungi saya untuk informasi lebih lanjut</p>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-user"></i>
+                        <div>
+                            <h4>Nama</h4>
+                            <p>GhostHunter</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>WhatsApp</h4>
+                            <p>081268102819</p>
+                        </div>
+                    </div>
+                    <div class="contact-item" data-aos="fade-left">
+                         <i class="fas fa-map-marker-alt"></i>
+                    <h3>Lokasi Kampus Saya (UGM)</h3>
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.171984408002!2d110.37300431477779!3d-7.771570994399199!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a584f6bec9c97%3A0x959357919598cf83!2sUniversitas%20Gadjah%20Mada!5e0!3m2!1sid!2sid!4v1678886000000" 
+                        width="100%" 
+                        height="350" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+                </div>
+                <div class="donation-section">
+                    <h3>Support Development</h3>
+                    <div class="qr-container">
+                        <div class="qr-placeholder">
+                            <i class="fas fa-qrcode"></i>
+                            <p>QR Code Donasi<br><strong>QRDANA</strong></p>
+                             <img src="dana.jpg" alt="QR Code Dana Ghosthunter">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Stock Prediction App by GhostHunter. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
