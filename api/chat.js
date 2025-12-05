@@ -1,11 +1,17 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+  // Hanya izinkan method POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   const { message } = req.body;
-  const apiKey = process.env.GEMINI_API_KEY; // Kita ganti nama kuncinya
+
+  // --- KUNCI LANGSUNG DITEMPEL DI SINI (HANYA UNTUK TES) ---
+  const apiKey = "AIzaSyACuNPRhQz4K5ZRqQqidze0XUHWHNRFlLM"; 
+  // ---------------------------------------------------------
 
   try {
-    // URL API Google Gemini
+    // URL API Google Gemini (Model Flash yang Cepat & Gratis)
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
@@ -14,7 +20,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `Kamu adalah asisten AI untuk website Prediksi Saham GhostHunter. Jawablah pertanyaan berikut dengan singkat, ramah, dan dalam Bahasa Indonesia:\n\nUser: ${message}`
+            text: `Kamu adalah asisten AI untuk website Prediksi Saham GhostHunter. Jawablah pertanyaan user berikut dengan singkat, ramah, dan membantu dalam Bahasa Indonesia:\n\nUser: ${message}`
           }]
         }]
       })
@@ -22,23 +28,24 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Cek jika ada error dari Google
-    if (data.error) {
-      throw new Error(data.error.message);
+    // Cek jika Google mengirim error
+    if (!response.ok) {
+      console.error("Gemini API Error Details:", data);
+      throw new Error(data.error?.message || 'Error dari Google Gemini');
     }
 
-    // Ambil jawaban dari format Gemini
+    // Ambil teks jawaban dari struktur data Gemini
     const reply = data.candidates[0].content.parts[0].text;
-    
-    // Kembalikan ke format yang dimengerti frontend kita
-    return res.status(200).json({ 
-      choices: [{ 
-        message: { content: reply } 
-      }] 
+
+    // Kirim balik ke frontend
+    return res.status(200).json({
+      choices: [{
+        message: { content: reply }
+      }]
     });
 
   } catch (error) {
-    console.error("Gemini Error:", error);
-    return res.status(500).json({ error: 'Gagal memproses pesan.' });
+    console.error("Server Error Log:", error);
+    return res.status(500).json({ error: error.message || 'Gagal memproses pesan.' });
   }
 }
