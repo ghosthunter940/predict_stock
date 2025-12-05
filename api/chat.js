@@ -1,17 +1,17 @@
 export default async function handler(req, res) {
-  // Hanya izinkan method POST
+  // 1. Hanya izinkan metode POST (kirim data)
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { message } = req.body;
 
-  // --- KUNCI LANGSUNG DITEMPEL DI SINI (HANYA UNTUK TES) ---
+  // 2. KUNCI RAHASIA (Saya ambil langsung dari gambar screenshot kamu)
+  // Ini ditempel langsung biar tidak ada drama "Key Not Found" lagi.
   const apiKey = "AIzaSyACuNPRhQz4K5ZRqQqidze0XUHWHNRFlLM"; 
-  // ---------------------------------------------------------
 
   try {
-    // URL API Google Gemini (Model Flash yang Cepat & Gratis)
+    // 3. Panggil Google Gemini (Versi Flash yang Cepat & Gratis)
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
@@ -20,7 +20,8 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `Kamu adalah asisten AI untuk website Prediksi Saham GhostHunter. Jawablah pertanyaan user berikut dengan singkat, ramah, dan membantu dalam Bahasa Indonesia:\n\nUser: ${message}`
+            // Instruksi agar AI berlagak jadi asisten saham
+            text: `Kamu adalah asisten AI ramah untuk website 'Stock Predictor' buatan GhostHunter. Jawab pertanyaan user ini dengan singkat dalam Bahasa Indonesia:\n\nUser: ${message}`
           }]
         }]
       })
@@ -28,16 +29,16 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Cek jika Google mengirim error
+    // 4. Cek kalau Google menolak (Misal kuota habis)
     if (!response.ok) {
-      console.error("Gemini API Error Details:", data);
+      console.error("Gemini Error:", data);
       throw new Error(data.error?.message || 'Error dari Google Gemini');
     }
 
-    // Ambil teks jawaban dari struktur data Gemini
+    // 5. Ambil jawaban dari struktur data Google
     const reply = data.candidates[0].content.parts[0].text;
 
-    // Kirim balik ke frontend
+    // 6. Kirim jawaban ke layar Chatbot
     return res.status(200).json({
       choices: [{
         message: { content: reply }
@@ -45,7 +46,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error("Server Error Log:", error);
-    return res.status(500).json({ error: error.message || 'Gagal memproses pesan.' });
+    console.error("Server Error:", error);
+    return res.status(500).json({ error: 'Maaf, asisten sedang sibuk. Coba lagi nanti.' });
   }
 }
